@@ -1,0 +1,20 @@
+[
+  {
+    "timestamp": "2025-04-03T01:32:48.378606",
+    "frax_supply": null,
+    "frax_price": null,
+    "frax_supply_change": null,
+    "dai_supply": null,
+    "dai_price": null,
+    "dai_supply_change": null
+  },
+  {
+    "timestamp": "2025-04-03T01:37:12.967786",
+    "frax_supply": 348656596.4813211,
+    "frax_price": 0.9996,
+    "frax_supply_change": 0,
+    "dai_supply": 3149213614.026867,
+    "dai_price": 1.0,
+    "dai_supply_change": 0
+  }
+]
