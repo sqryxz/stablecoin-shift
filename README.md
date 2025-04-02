@@ -4,24 +4,32 @@ A Python-based tool to monitor supply changes in major stablecoins (FRAX and DAI
 
 ## Features
 
-- Real-time monitoring of FRAX and DAI stablecoin supplies
-- Calculation of supply changes over time
-- Monitoring of FRAX collateralization ratio
-- Asynchronous API calls for efficient data fetching
-- Detailed logging of supply changes and errors
+- Monitors FRAX and DAI stablecoin supplies and prices
+- Uses CoinGecko API for reliable data retrieval
+- Implements rate limiting and error handling
+- Saves data to both JSON and CSV formats
+- Calculates supply changes over time
+
+## Requirements
+
+- Python 3.x
+- Required packages:
+  - requests
+  - pytz
+  - python-dateutil
 
 ## Installation
 
-1. Clone this repository:
+1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/yourusername/stablecoin-supply-shift.git
 cd stablecoin-supply-shift
 ```
 
-2. Create a virtual environment (recommended):
+2. Create and activate a virtual environment:
 ```bash
 python3 -m venv venv
-source venv/bin/activate  # On Windows, use: venv\Scripts\activate
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
 3. Install dependencies:
@@ -31,48 +39,45 @@ pip install -r requirements.txt
 
 ## Usage
 
-Run the monitor:
+Run the monitor script:
 ```bash
 python3 src/stablecoin_monitor.py
 ```
 
 The script will:
-- Fetch supply data for FRAX and DAI every 5 minutes
-- Calculate and display supply changes
-- Show FRAX collateralization ratio
-- Log all information to the console
+- Fetch current supply and price data for FRAX and DAI
+- Calculate supply changes
+- Save data to:
+  - `data/stablecoin_data.json`
+  - `data/stablecoin_data.csv`
+- Log updates and next check times
 
-To stop monitoring, press Ctrl+C.
+## Data Format
 
-## Output Format
+The CSV file contains the following columns:
+- timestamp
+- FRAX supply
+- FRAX price
+- FRAX supply change
+- DAI supply
+- DAI price
+- DAI supply change
 
-The monitor displays:
-- Current supply for each stablecoin
-- Percentage change since last check
-- FRAX collateralization ratio
-- Timestamp for each update
+## Rate Limiting
 
-Example output:
-```
-2024-XX-XX XX:XX:XX - INFO - FRAX Supply: 1,234,567.89
-2024-XX-XX XX:XX:XX - INFO - FRAX Collateral Ratio: 85.50%
-2024-XX-XX XX:XX:XX - INFO - FRAX Supply Change: +0.25%
-2024-XX-XX XX:XX:XX - INFO - DAI Supply: 5,678,901.23
-2024-XX-XX XX:XX:XX - INFO - DAI Supply Change: -0.15%
-```
+The script implements rate limiting to comply with API restrictions:
+- Minimum 6 seconds between requests
+- Automatic retry on rate limit responses (429)
+- Maximum 3 retries with 10-second delays
 
 ## Error Handling
 
 The script includes robust error handling for:
 - API connection issues
-- Data parsing errors
-- Invalid responses
+- Rate limiting responses
+- Invalid data responses
+- File I/O operations
 
-All errors are logged with appropriate error messages.
+## License
 
-## Dependencies
-
-- aiohttp: For async HTTP requests
-- pandas: For data manipulation
-- python-dotenv: For environment variable management
-- requests: For HTTP requests 
+MIT License - see LICENSE file for details 
