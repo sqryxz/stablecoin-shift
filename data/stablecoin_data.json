@@ -16,5 +16,248 @@
     "dai_supply": 3149213614.026867,
     "dai_price": 1.0,
     "dai_supply_change": 0
+  },
+  {
+    "timestamp": "2025-04-03T01:52:38.647842",
+    "frax_supply": 348656596.4813211,
+    "frax_price": 0.9994,
+    "frax_supply_change": 0,
+    "dai_supply": 3149213614.026867,
+    "dai_price": 0.9999,
+    "dai_supply_change": 0
+  },
+  {
+    "timestamp": "2025-04-03T02:07:56.995308",
+    "frax_supply": 348656596.4813211,
+    "frax_price": 0.9993,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3149213614.026867,
+    "dai_price": 1.0,
+    "dai_supply_change": 0.0
+  },
+  {
+    "timestamp": "2025-04-03T02:23:15.356862",
+    "frax_supply": 348656596.4813211,
+    "frax_price": 0.9993,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3149213614.026867,
+    "dai_price": 0.9999,
+    "dai_supply_change": 0.0
+  },
+  {
+    "timestamp": "2025-04-03T02:38:33.635684",
+    "frax_supply": 348656596.4813211,
+    "frax_price": 0.9993,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3149213614.026867,
+    "dai_price": 1.0,
+    "dai_supply_change": 0.0
+  },
+  {
+    "timestamp": "2025-04-03T02:53:51.947091",
+    "frax_supply": 348656596.4813211,
+    "frax_price": 0.9994,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3154045876.042102,
+    "dai_price": 0.9999,
+    "dai_supply_change": 0.15344344993656953
+  },
+  {
+    "timestamp": "2025-04-03T03:09:10.390835",
+    "frax_supply": 348656596.4813211,
+    "frax_price": 0.9994,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3154045876.042102,
+    "dai_price": 1.0,
+    "dai_supply_change": 0.0
+  },
+  {
+    "timestamp": "2025-04-03T03:24:28.758186",
+    "frax_supply": 348656596.4813211,
+    "frax_price": 0.9995,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3154045876.042102,
+    "dai_price": 1.0,
+    "dai_supply_change": 0.0
+  },
+  {
+    "timestamp": "2025-04-03T03:39:47.015352",
+    "frax_supply": 348156596.4813212,
+    "frax_price": 0.9994,
+    "frax_supply_change": -0.14340758357820652,
+    "dai_supply": 3154045876.042102,
+    "dai_price": 1.0,
+    "dai_supply_change": 0.0
+  },
+  {
+    "timestamp": "2025-04-03T03:55:05.317339",
+    "frax_supply": 348156596.4813212,
+    "frax_price": 0.9995,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3152886969.549034,
+    "dai_price": 1.0,
+    "dai_supply_change": -0.03674348879547723
+  },
+  {
+    "timestamp": "2025-04-03T04:10:23.662463",
+    "frax_supply": 348156596.4813212,
+    "frax_price": 0.9995,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3152886969.549034,
+    "dai_price": 1.0,
+    "dai_supply_change": 0.0
+  },
+  {
+    "timestamp": "2025-04-03T04:25:42.041777",
+    "frax_supply": 348156596.4813212,
+    "frax_price": 0.9996,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3152886969.549034,
+    "dai_price": 0.9998,
+    "dai_supply_change": 0.0
+  },
+  {
+    "timestamp": "2025-04-03T04:41:00.361845",
+    "frax_supply": 348156596.4813212,
+    "frax_price": 0.9995,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3152344931.064891,
+    "dai_price": 0.9996,
+    "dai_supply_change": -0.01719181465679965
+  },
+  {
+    "timestamp": "2025-04-03T04:56:18.644828",
+    "frax_supply": 348156596.4813212,
+    "frax_price": 0.9992,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3152344931.064891,
+    "dai_price": 0.9996,
+    "dai_supply_change": 0.0
+  },
+  {
+    "timestamp": "2025-04-03T05:11:36.983204",
+    "frax_supply": 348156596.4813212,
+    "frax_price": 0.9992,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3152344931.064891,
+    "dai_price": 0.9996,
+    "dai_supply_change": 0.0
+  },
+  {
+    "timestamp": "2025-04-03T05:26:55.251322",
+    "frax_supply": 348156596.4813212,
+    "frax_price": 0.9991,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3152344931.064891,
+    "dai_price": 0.9996,
+    "dai_supply_change": 0.0
+  },
+  {
+    "timestamp": "2025-04-03T05:42:13.605742",
+    "frax_supply": 348156596.4813212,
+    "frax_price": 0.9992,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3154325449.345228,
+    "dai_price": 0.9994,
+    "dai_supply_change": 0.06282682649415197
+  },
+  {
+    "timestamp": "2025-04-03T05:57:31.928829",
+    "frax_supply": 348156596.4813212,
+    "frax_price": 0.9993,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3154325449.345228,
+    "dai_price": 0.9998,
+    "dai_supply_change": 0.0
+  },
+  {
+    "timestamp": "2025-04-03T06:12:50.208760",
+    "frax_supply": 348156596.4813212,
+    "frax_price": 0.9992,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3154325449.345228,
+    "dai_price": 0.9998,
+    "dai_supply_change": 0.0
+  },
+  {
+    "timestamp": "2025-04-03T06:28:08.521581",
+    "frax_supply": 348156596.4813212,
+    "frax_price": 0.9993,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3154325449.345228,
+    "dai_price": 0.9995,
+    "dai_supply_change": 0.0
+  },
+  {
+    "timestamp": "2025-04-03T06:43:26.749255",
+    "frax_supply": 348156596.4813212,
+    "frax_price": 0.999,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3155586466.428974,
+    "dai_price": 0.9995,
+    "dai_supply_change": 0.0399773930748876
+  },
+  {
+    "timestamp": "2025-04-03T06:58:45.073786",
+    "frax_supply": 348156596.4813212,
+    "frax_price": 0.999,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3155586466.428974,
+    "dai_price": 0.9996,
+    "dai_supply_change": 0.0
+  },
+  {
+    "timestamp": "2025-04-03T07:14:03.397480",
+    "frax_supply": 348156596.4813212,
+    "frax_price": 0.9991,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3155586466.428974,
+    "dai_price": 0.9995,
+    "dai_supply_change": 0.0
+  },
+  {
+    "timestamp": "2025-04-03T07:29:21.890880",
+    "frax_supply": 348156596.4813212,
+    "frax_price": 0.999,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3155586466.428974,
+    "dai_price": 0.9995,
+    "dai_supply_change": 0.0
+  },
+  {
+    "timestamp": "2025-04-03T07:44:40.274221",
+    "frax_supply": 348156596.4813212,
+    "frax_price": 0.999,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3155780798.934539,
+    "dai_price": 0.9995,
+    "dai_supply_change": 0.006158364146636945
+  },
+  {
+    "timestamp": "2025-04-03T07:59:58.590527",
+    "frax_supply": 348156596.4813212,
+    "frax_price": 0.9993,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3155780798.934539,
+    "dai_price": 0.9996,
+    "dai_supply_change": 0.0
+  },
+  {
+    "timestamp": "2025-04-03T08:15:16.919295",
+    "frax_supply": 348156596.4813212,
+    "frax_price": 0.999,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3155780798.934539,
+    "dai_price": 0.9995,
+    "dai_supply_change": 0.0
+  },
+  {
+    "timestamp": "2025-04-03T08:30:35.223793",
+    "frax_supply": 348156596.4813212,
+    "frax_price": 0.9991,
+    "frax_supply_change": 0.0,
+    "dai_supply": 3155780798.934539,
+    "dai_price": 0.9996,
+    "dai_supply_change": 0.0
   }
 ]

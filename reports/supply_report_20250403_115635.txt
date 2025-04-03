@@ -1,0 +1,45 @@
+Stablecoin Supply Change Report
+==================================================
+
+Time: 2025-04-03 03:39:47
+Token: FRAX
+Supply Change: -0.1434%
+Current Supply: 348,156,596.48
+Token Price: $0.9994
+------------------------------
+Time: 2025-04-03 02:53:51
+Token: DAI
+Supply Change: 0.1534%
+Current Supply: 3,154,045,876.04
+Token Price: $0.9999
+------------------------------
+Time: 2025-04-03 03:55:05
+Token: DAI
+Supply Change: -0.0367%
+Current Supply: 3,152,886,969.55
+Token Price: $1.0000
+------------------------------
+Time: 2025-04-03 04:41:00
+Token: DAI
+Supply Change: -0.0172%
+Current Supply: 3,152,344,931.06
+Token Price: $0.9996
+------------------------------
+Time: 2025-04-03 05:42:13
+Token: DAI
+Supply Change: 0.0628%
+Current Supply: 3,154,325,449.35
+Token Price: $0.9994
+------------------------------
+Time: 2025-04-03 06:43:26
+Token: DAI
+Supply Change: 0.0400%
+Current Supply: 3,155,586,466.43
+Token Price: $0.9995
+------------------------------
+Time: 2025-04-03 07:44:40
+Token: DAI
+Supply Change: 0.0062%
+Current Supply: 3,155,780,798.93
+Token Price: $0.9995
+------------------------------
