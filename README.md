@@ -106,4 +106,45 @@ MIT License
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request 
+5. Open a Pull Request
+
+## Velocity Tracker Module
+
+The Velocity Tracker module monitors transaction patterns for FRAX and DAI stablecoins, providing insights into:
+- Daily transaction counts
+- Unique wallet activity
+- Token velocity ratios (transaction volume relative to total supply)
+- Visualization of velocity trends
+
+### Running the Velocity Tracker
+
+To generate a velocity report:
+
+```bash
+python3 src/velocity_tracker.py
+```
+
+This will:
+- Track transactions over the past 24 hours
+- Generate an HTML report with interactive charts
+- Save daily velocity data in CSV format
+- Create a JSON summary of key metrics
+
+### Velocity Metrics
+
+The tracker monitors several key metrics:
+- Transaction count: Total number of transfers
+- Unique wallets: Number of distinct addresses involved
+- Volume: Total amount of tokens transferred
+- Velocity ratio: Transaction volume relative to token supply
+
+### Environment Setup
+
+1. Copy `.env.example` to `.env`
+2. Add your Ethereum node URL (Infura/Alchemy)
+
+### Output Files
+
+- `data/velocity_data.csv`: Historical velocity metrics
+- `reports/velocity_report_YYYY-MM-DD.html`: Daily interactive charts
+- `reports/velocity_summary_YYYY-MM-DD.json`: Daily metrics summary 

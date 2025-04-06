@@ -31,6 +31,18 @@ env/
 *.swp
 *.swo
 
+# Environment variables
+.env
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Data and Reports (optional, comment out if you want to track these)
+#data/
+#reports/
+
 # Project specific
 data/*.json
 data/*.csv
