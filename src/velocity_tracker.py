@@ -235,56 +235,107 @@ class StablecoinVelocityTracker:
             return 0
 
     def generate_daily_report(self, data: pd.DataFrame) -> None:
-        """Generate daily velocity report with visualizations."""
+        """Generate daily velocity report with hourly visualizations."""
         try:
             today = datetime.now().strftime('%Y-%m-%d')
             report_file = os.path.join(self.summary_dir, f'velocity_report_{today}.html')
             
-            logger.info("Generating daily report...")
+            logger.info("Generating daily report with hourly data...")
             
-            # Create subplots
+            # Create subplots for each metric
             fig = make_subplots(
-                rows=2, cols=1,
-                subplot_titles=('Daily Transaction Count', 'Velocity Ratio'),
-                vertical_spacing=0.2
+                rows=3, cols=1,
+                subplot_titles=(
+                    'Hourly Transaction Count',
+                    'Hourly Velocity Ratio',
+                    'Hourly Trading Volume'
+                ),
+                vertical_spacing=0.15,
+                row_heights=[0.33, 0.33, 0.33]
             )
             
-            # Add transaction count traces
+            # Add traces for each token
             for token in ['FRAX', 'DAI']:
+                # Transaction count
                 fig.add_trace(
                     go.Scatter(
                         x=data.index,
                         y=data[f'{token}_transaction_count'],
                         name=f'{token} Transactions',
-                        mode='lines'
+                        mode='lines+markers'
                     ),
                     row=1, col=1
                 )
                 
+                # Velocity ratio
                 fig.add_trace(
                     go.Scatter(
                         x=data.index,
                         y=data[f'{token}_velocity_ratio'],
                         name=f'{token} Velocity',
-                        mode='lines'
+                        mode='lines+markers'
                     ),
                     row=2, col=1
                 )
+                
+                # Volume
+                fig.add_trace(
+                    go.Scatter(
+                        x=data.index,
+                        y=data[f'{token}_volume'],
+                        name=f'{token} Volume',
+                        mode='lines+markers'
+                    ),
+                    row=3, col=1
+                )
             
+            # Update layout
             fig.update_layout(
-                title='Stablecoin Velocity Analysis',
-                height=800,
-                showlegend=True
+                title='Stablecoin Velocity Analysis (24-Hour Hourly Breakdown)',
+                height=1200,
+                showlegend=True,
+                hovermode='x unified'
             )
+            
+            # Update y-axes labels
+            fig.update_yaxes(title_text="Transaction Count", row=1, col=1)
+            fig.update_yaxes(title_text="Velocity Ratio", row=2, col=1)
+            fig.update_yaxes(title_text="Volume", row=3, col=1)
+            
+            # Update x-axes to show time properly
+            for i in range(1, 4):
+                fig.update_xaxes(
+                    title_text="Time",
+                    tickformat="%H:%M",
+                    row=i,
+                    col=1
+                )
             
             # Save the plot
             fig.write_html(report_file)
             logger.info(f"Saved velocity report to {report_file}")
             
-            # Generate summary statistics
-            summary = data.tail(1).to_dict('records')[0]
-            summary_file = os.path.join(self.summary_dir, f'velocity_summary_{today}.json')
+            # Generate summary statistics for the last 24 hours
+            summary = {
+                'start_time': data.index.min().strftime('%Y-%m-%d %H:%M:%S'),
+                'end_time': data.index.max().strftime('%Y-%m-%d %H:%M:%S'),
+                'FRAX': {
+                    'avg_velocity': float(data['FRAX_velocity_ratio'].mean()),
+                    'max_velocity': float(data['FRAX_velocity_ratio'].max()),
+                    'total_transactions': int(data['FRAX_transaction_count'].sum()),
+                    'total_volume': float(data['FRAX_volume'].sum()),
+                    'avg_unique_wallets': float(data['FRAX_unique_wallets'].mean())
+                },
+                'DAI': {
+                    'avg_velocity': float(data['DAI_velocity_ratio'].mean()),
+                    'max_velocity': float(data['DAI_velocity_ratio'].max()),
+                    'total_transactions': int(data['DAI_transaction_count'].sum()),
+                    'total_volume': float(data['DAI_volume'].sum()),
+                    'avg_unique_wallets': float(data['DAI_unique_wallets'].mean())
+                }
+            }
             
+            summary_file = os.path.join(self.summary_dir, f'velocity_summary_{today}.json')
             with open(summary_file, 'w') as f:
                 json.dump(summary, f, indent=4)
             logger.info(f"Saved velocity summary to {summary_file}")
@@ -293,53 +344,69 @@ class StablecoinVelocityTracker:
             logger.error(f"Error generating report: {str(e)}")
 
     async def track_velocity(self):
-        """Main function to track velocity metrics."""
+        """Main function to track velocity metrics for 24 hourly intervals."""
         try:
-            logger.info("Starting velocity tracking...")
+            logger.info("Starting hourly velocity tracking...")
             
             # Get current block number
             current_block = await self.get_current_block()
             if current_block == 0:
                 raise ValueError("Failed to get current block number")
             
-            # Calculate start block (approximately 24 hours ago)
-            # Ethereum averages ~15 seconds per block, so 24 hours ≈ 5760 blocks
-            start_block = current_block - 5760
+            # Calculate blocks for 24 hours with hourly intervals
+            # Ethereum averages ~15 seconds per block
+            # 1 hour ≈ 240 blocks (3600 seconds / 15 seconds)
+            blocks_per_hour = 240
+            total_hours = 24
+            hourly_data = []
             
-            logger.info(f"Analyzing blocks from {start_block} to {current_block}")
-            logger.info(f"Block range: {current_block - start_block} blocks")
-            
-            # Verify block range is reasonable
-            if current_block - start_block > 6500:  # Allow some margin for block time variations
-                logger.warning(f"Block range seems too large: {current_block - start_block} blocks")
-            elif current_block - start_block < 5000:  # Allow some margin for block time variations
-                logger.warning(f"Block range seems too small: {current_block - start_block} blocks")
-            
-            velocity_data = {}
-            
-            # Fetch data for each token
-            for token_name, token_address in self.tokens.items():
-                logger.info(f"Processing {token_name}...")
-                transactions = await self.fetch_token_transactions(token_address, start_block, current_block)
-                token_supply = await self.get_token_supply(token_address)
-                metrics = self.calculate_velocity_metrics(transactions, token_supply)
+            for hour in range(total_hours):
+                end_block = current_block - (hour * blocks_per_hour)
+                start_block = end_block - blocks_per_hour
                 
-                for key, value in metrics.items():
-                    velocity_data[f'{token_name}_{key}'] = value
+                logger.info(f"Processing hour {hour + 1}/{total_hours}")
+                logger.info(f"Analyzing blocks from {start_block} to {end_block}")
+                
+                velocity_data = {}
+                timestamp = datetime.now() - timedelta(hours=hour)
+                
+                # Fetch data for each token
+                for token_name, token_address in self.tokens.items():
+                    logger.info(f"Processing {token_name} for hour {hour + 1}...")
+                    transactions = await self.fetch_token_transactions(token_address, start_block, end_block)
+                    token_supply = await self.get_token_supply(token_address)
+                    metrics = self.calculate_velocity_metrics(transactions, token_supply)
+                    
+                    for key, value in metrics.items():
+                        velocity_data[f'{token_name}_{key}'] = value
+                
+                velocity_data['timestamp'] = timestamp
+                velocity_data['hour'] = hour
+                velocity_data['start_block'] = start_block
+                velocity_data['end_block'] = end_block
+                hourly_data.append(velocity_data)
+            
+            # Convert to DataFrame and sort by timestamp
+            df = pd.DataFrame(hourly_data)
+            df.set_index('timestamp', inplace=True)
+            df.sort_index(inplace=True)
             
             # Save to CSV
-            df = pd.DataFrame([velocity_data], index=[datetime.now()])
-            
             if os.path.exists(self.velocity_data_file):
                 existing_df = pd.read_csv(self.velocity_data_file, index_col=0, parse_dates=True)
+                # Remove any existing data for the time range we just collected
+                existing_df = existing_df[~existing_df.index.isin(df.index)]
                 df = pd.concat([existing_df, df])
             
             df.to_csv(self.velocity_data_file)
-            logger.info(f"Saved velocity data to {self.velocity_data_file}")
+            logger.info(f"Saved hourly velocity data to {self.velocity_data_file}")
             
-            # Generate daily report
+            # Generate daily report with hourly data
             self.generate_daily_report(df)
-            logger.info("Completed velocity tracking")
+            logger.info("Completed hourly velocity tracking")
+            
+            # Return the hourly data
+            return hourly_data
             
         except Exception as e:
             logger.error(f"Error in track_velocity: {str(e)}")

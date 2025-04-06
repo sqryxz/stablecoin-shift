@@ -1,0 +1,18 @@
+{
+    "start_time": "2025-04-05 18:05:48",
+    "end_time": "2025-04-06 17:07:29",
+    "FRAX": {
+        "avg_velocity": 0.0004864568210274343,
+        "max_velocity": 0.007921285876939,
+        "total_transactions": 1997,
+        "total_volume": 9314344.032378446,
+        "avg_unique_wallets": 23.527272727272727
+    },
+    "DAI": {
+        "avg_velocity": 0.08979023917189682,
+        "max_velocity": 2.1258791509069668,
+        "total_transactions": 31570,
+        "total_volume": 15616378916.720324,
+        "avg_unique_wallets": 296.92727272727274
+    }
+}

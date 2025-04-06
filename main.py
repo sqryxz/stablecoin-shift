@@ -64,31 +64,43 @@ async def generate_consolidated_report():
             f.write("=== Stablecoin Analysis Consolidated Report ===\n")
             f.write(f"Generated at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
             
-            # Velocity Analysis Section
-            f.write("=== Velocity Analysis ===\n")
-            f.write(f"FRAX Velocity Ratio: {velocity_data['FRAX_velocity_ratio']:.4f}\n")
-            f.write(f"DAI Velocity Ratio: {velocity_data['DAI_velocity_ratio']:.4f}\n")
-            f.write(f"FRAX Transaction Count: {velocity_data['FRAX_transaction_count']}\n")
-            f.write(f"DAI Transaction Count: {velocity_data['DAI_transaction_count']}\n\n")
-            
-            # Supply Analysis Section
+            # Supply Analysis Section First
             f.write("=== Supply Analysis ===\n")
             if supply_data:
-                f.write(f"FRAX Supply: {supply_data['frax_supply']:,.2f}\n")
-                f.write(f"FRAX Price: ${supply_data['frax_price']:.4f}\n")
-                f.write(f"FRAX Supply Change: {supply_data['frax_supply_change']:+.2f}%\n")
-                f.write(f"DAI Supply: {supply_data['dai_supply']:,.2f}\n")
-                f.write(f"DAI Price: ${supply_data['dai_price']:.4f}\n")
-                f.write(f"DAI Supply Change: {supply_data['dai_supply_change']:+.2f}%\n\n")
+                # FRAX Supply Analysis
+                f.write("FRAX Supply Metrics:\n")
+                f.write(f"  - Current Supply: {supply_data['frax_supply']:,.2f}\n")
+                f.write(f"  - Current Price: ${supply_data['frax_price']:.4f}\n")
+                f.write(f"  - 24h Supply Change: {supply_data['frax_supply_change']:+.2f}%\n\n")
+                
+                # DAI Supply Analysis
+                f.write("DAI Supply Metrics:\n")
+                f.write(f"  - Current Supply: {supply_data['dai_supply']:,.2f}\n")
+                f.write(f"  - Current Price: ${supply_data['dai_price']:.4f}\n")
+                f.write(f"  - 24h Supply Change: {supply_data['dai_supply_change']:+.2f}%\n\n")
             else:
                 f.write("Supply data not available yet\n\n")
             
-            # Additional Metrics
-            f.write("\n=== Additional Metrics ===\n")
-            f.write(f"FRAX Unique Wallets: {velocity_data['FRAX_unique_wallets']}\n")
-            f.write(f"DAI Unique Wallets: {velocity_data['DAI_unique_wallets']}\n")
-            f.write(f"FRAX Duplicate Transactions: {velocity_data['FRAX_duplicate_txs']}\n")
-            f.write(f"DAI Duplicate Transactions: {velocity_data['DAI_duplicate_txs']}\n")
+            # Velocity Analysis Section - Split by Token
+            f.write("=== Velocity Analysis ===\n")
+            
+            # FRAX Velocity Metrics
+            f.write("FRAX Velocity Metrics:\n")
+            f.write(f"  - Velocity Ratio: {velocity_data['FRAX_velocity_ratio']:.4f}\n")
+            f.write(f"  - Transaction Count: {velocity_data['FRAX_transaction_count']}\n")
+            f.write(f"  - Unique Wallets: {velocity_data['FRAX_unique_wallets']}\n")
+            f.write(f"  - Volume: {velocity_data['FRAX_volume_formatted']}\n")
+            f.write(f"  - Token Supply: {velocity_data['FRAX_token_supply_formatted']}\n")
+            f.write(f"  - Duplicate Transactions: {velocity_data['FRAX_duplicate_txs']}\n\n")
+            
+            # DAI Velocity Metrics
+            f.write("DAI Velocity Metrics:\n")
+            f.write(f"  - Velocity Ratio: {velocity_data['DAI_velocity_ratio']:.4f}\n")
+            f.write(f"  - Transaction Count: {velocity_data['DAI_transaction_count']}\n")
+            f.write(f"  - Unique Wallets: {velocity_data['DAI_unique_wallets']}\n")
+            f.write(f"  - Volume: {velocity_data['DAI_volume_formatted']}\n")
+            f.write(f"  - Token Supply: {velocity_data['DAI_token_supply_formatted']}\n")
+            f.write(f"  - Duplicate Transactions: {velocity_data['DAI_duplicate_txs']}\n")
         
         print(f"Consolidated report generated successfully: {report_path}")
         return True
