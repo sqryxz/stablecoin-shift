@@ -22,7 +22,9 @@ class StablecoinMonitor:
         self.coingecko_api_url = "https://api.coingecko.com/api/v3"
         self.previous_supplies = {
             'FRAX': None,
-            'DAI': None
+            'DAI': None,
+            'EURC': None,
+            'ESDe': None
         }
         
         # Rate limiting parameters
@@ -149,7 +151,13 @@ class StablecoinMonitor:
                     'frax_supply_change': None,
                     'dai_supply': None,
                     'dai_price': None,
-                    'dai_supply_change': None
+                    'dai_supply_change': None,
+                    'eurc_supply': None,
+                    'eurc_price': None,
+                    'eurc_supply_change': None,
+                    'esde_supply': None,
+                    'esde_price': None,
+                    'esde_supply_change': None
                 }
 
                 # Fetch data with delay between requests
@@ -189,6 +197,48 @@ class StablecoinMonitor:
                         'dai_supply': current_dai_supply,
                         'dai_price': dai_data['price'],
                         'dai_supply_change': dai_change
+                    })
+
+                await asyncio.sleep(2)  # Small delay between coins
+
+                # Add EURC monitoring
+                eurc_data = await self.get_stablecoin_data(session, 'euro-coin')
+                if eurc_data:
+                    current_eurc_supply = eurc_data['supply']
+                    eurc_change = self.calculate_supply_change(
+                        current_eurc_supply,
+                        self.previous_supplies['EURC']
+                    )
+                    logger.info(f"EURC Supply: {current_eurc_supply:,.2f}")
+                    logger.info(f"EURC Price: ${eurc_data['price']:.4f}")
+                    logger.info(f"EURC Supply Change: {eurc_change:+.2f}%")
+                    self.previous_supplies['EURC'] = current_eurc_supply
+                    
+                    data_entry.update({
+                        'eurc_supply': current_eurc_supply,
+                        'eurc_price': eurc_data['price'],
+                        'eurc_supply_change': eurc_change
+                    })
+
+                await asyncio.sleep(2)  # Small delay between coins
+
+                # Add ESDe monitoring
+                esde_data = await self.get_stablecoin_data(session, 'ethena-esde')
+                if esde_data:
+                    current_esde_supply = esde_data['supply']
+                    esde_change = self.calculate_supply_change(
+                        current_esde_supply,
+                        self.previous_supplies['ESDe']
+                    )
+                    logger.info(f"ESDe Supply: {current_esde_supply:,.2f}")
+                    logger.info(f"ESDe Price: ${esde_data['price']:.4f}")
+                    logger.info(f"ESDe Supply Change: {esde_change:+.2f}%")
+                    self.previous_supplies['ESDe'] = current_esde_supply
+                    
+                    data_entry.update({
+                        'esde_supply': current_esde_supply,
+                        'esde_price': esde_data['price'],
+                        'esde_supply_change': esde_change
                     })
 
                 # Save data to files

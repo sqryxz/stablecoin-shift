@@ -61,7 +61,9 @@ class StablecoinVelocityTracker:
         # Token contract addresses (Ethereum mainnet)
         self.tokens = {
             'FRAX': '0x853d955acef822db058eb8505911ed77f175b99e',
-            'DAI': '0x6b175474e89094c44da98b954eedeac495271d0f'
+            'DAI': '0x6b175474e89094c44da98b954eedeac495271d0f',
+            'EURC': '0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c',
+            'ESDe': '0x49Ec3e1335490d1c5C77A6aB77c1e3F6c19Fdf31'  # Ethena Labs ESDe
         }
         
         # Ensure directories exist
@@ -138,6 +140,7 @@ class StablecoinVelocityTracker:
             unique_wallets = set()
             volume = 0
             processed_txs = set()  # Track unique transaction hashes
+            high_value_txs = []  # Track high value transactions
             
             # Log the first few transactions for debugging
             for i, tx in enumerate(transactions):
@@ -162,6 +165,15 @@ class StablecoinVelocityTracker:
                 unique_wallets.add(from_addr)
                 unique_wallets.add(to_addr)
                 volume += value
+                
+                # Track high value transactions (>100k tokens)
+                if value > 100000:
+                    high_value_txs.append({
+                        'hash': tx_hash,
+                        'from': from_addr,
+                        'to': to_addr,
+                        'value': value
+                    })
                 
                 # Log details of first 5 non-zero transactions
                 if i < 5:
@@ -191,6 +203,15 @@ class StablecoinVelocityTracker:
                 logger.warning(f"High velocity ratio detected: {metrics['velocity_ratio']:.2f}")
                 logger.warning(f"Volume: {metrics['volume_formatted']}")
                 logger.warning(f"Token Supply: {metrics['token_supply_formatted']}")
+                logger.warning("High value transactions in this period:")
+                # Sort high value transactions by value
+                high_value_txs.sort(key=lambda x: x['value'], reverse=True)
+                for tx in high_value_txs:
+                    logger.warning(f"  Hash: {tx['hash']}")
+                    logger.warning(f"  From: {tx['from']}")
+                    logger.warning(f"  To: {tx['to']}")
+                    logger.warning(f"  Value: {tx['value']:,.2f}")
+                    logger.warning("  ---")
             
             return metrics
         except Exception as e:
@@ -255,7 +276,7 @@ class StablecoinVelocityTracker:
             )
             
             # Add traces for each token
-            for token in ['FRAX', 'DAI']:
+            for token in ['FRAX', 'DAI', 'EURC', 'ESDe']:
                 # Transaction count
                 fig.add_trace(
                     go.Scatter(
@@ -332,6 +353,20 @@ class StablecoinVelocityTracker:
                     'total_transactions': int(data['DAI_transaction_count'].sum()),
                     'total_volume': float(data['DAI_volume'].sum()),
                     'avg_unique_wallets': float(data['DAI_unique_wallets'].mean())
+                },
+                'EURC': {
+                    'avg_velocity': float(data['EURC_velocity_ratio'].mean()),
+                    'max_velocity': float(data['EURC_velocity_ratio'].max()),
+                    'total_transactions': int(data['EURC_transaction_count'].sum()),
+                    'total_volume': float(data['EURC_volume'].sum()),
+                    'avg_unique_wallets': float(data['EURC_unique_wallets'].mean())
+                },
+                'ESDe': {
+                    'avg_velocity': float(data['ESDe_velocity_ratio'].mean()),
+                    'max_velocity': float(data['ESDe_velocity_ratio'].max()),
+                    'total_transactions': int(data['ESDe_transaction_count'].sum()),
+                    'total_volume': float(data['ESDe_volume'].sum()),
+                    'avg_unique_wallets': float(data['ESDe_unique_wallets'].mean())
                 }
             }
             

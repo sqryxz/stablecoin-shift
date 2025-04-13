@@ -1,4 +1,4 @@
-timestamp,frax_supply,frax_price,frax_supply_change,dai_supply,dai_price,dai_supply_change
+timestamp,frax_supply,frax_price,frax_supply_change,dai_supply,dai_price,dai_supply_change,eurc_supply,eurc_price,eurc_supply_change,esde_supply,esde_price,esde_supply_change
 2025-04-03T01:32:48.378606,,,,,,
 2025-04-03T01:37:12.967786,348656596.4813211,0.9996,0.0,3149213614.026867,1.0,0.0
 2025-04-03T01:52:38.647842,348656596.4813211,0.9994,0.0,3149213614.026867,0.9999,0.0

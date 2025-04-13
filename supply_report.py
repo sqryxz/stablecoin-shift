@@ -11,12 +11,18 @@ def load_data(file_path='data/stablecoin_data.csv'):
     # Fill NaN values with 0 for supply changes
     df['frax_supply_change'] = df['frax_supply_change'].fillna(0)
     df['dai_supply_change'] = df['dai_supply_change'].fillna(0)
+    df['eurc_supply_change'] = df['eurc_supply_change'].fillna(0)
+    df['esde_supply_change'] = df['esde_supply_change'].fillna(0)
     
     # Forward fill prices and supply values
     df['frax_price'] = df['frax_price'].fillna(method='ffill')
     df['dai_price'] = df['dai_price'].fillna(method='ffill')
+    df['eurc_price'] = df['eurc_price'].fillna(method='ffill')
+    df['esde_price'] = df['esde_price'].fillna(method='ffill')
     df['frax_supply'] = df['frax_supply'].fillna(method='ffill')
     df['dai_supply'] = df['dai_supply'].fillna(method='ffill')
+    df['eurc_supply'] = df['eurc_supply'].fillna(method='ffill')
+    df['esde_supply'] = df['esde_supply'].fillna(method='ffill')
     
     return df
 
@@ -33,6 +39,8 @@ def analyze_supply_changes(df, window_hours=2):
         # Check for any non-zero supply changes
         frax_changes = window_data[np.abs(window_data['frax_supply_change']) > 0.0001]
         dai_changes = window_data[np.abs(window_data['dai_supply_change']) > 0.0001]
+        eurc_changes = window_data[np.abs(window_data['eurc_supply_change']) > 0.0001]
+        esde_changes = window_data[np.abs(window_data['esde_supply_change']) > 0.0001]
         
         if not frax_changes.empty:
             for _, row in frax_changes.iterrows():
@@ -52,6 +60,26 @@ def analyze_supply_changes(df, window_hours=2):
                     'supply_change_pct': row['dai_supply_change'],
                     'price': row['dai_price'],
                     'supply': row['dai_supply']
+                })
+
+        if not eurc_changes.empty:
+            for _, row in eurc_changes.iterrows():
+                changes.append({
+                    'timestamp': row['timestamp'],
+                    'token': 'EURC',
+                    'supply_change_pct': row['eurc_supply_change'],
+                    'price': row['eurc_price'],
+                    'supply': row['eurc_supply']
+                })
+
+        if not esde_changes.empty:
+            for _, row in esde_changes.iterrows():
+                changes.append({
+                    'timestamp': row['timestamp'],
+                    'token': 'ESDe',
+                    'supply_change_pct': row['esde_supply_change'],
+                    'price': row['esde_price'],
+                    'supply': row['esde_supply']
                 })
     
     return changes
