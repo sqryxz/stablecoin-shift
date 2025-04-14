@@ -1,0 +1,26 @@
+=== Stablecoin Analysis Consolidated Report ===
+Generated at: 2025-04-14 15:16:49
+
+=== Supply Analysis ===
+FRAX Supply Metrics:
+  - Current Supply: 319,906,477.62
+  - Current Price: $0.9995
+  - 24h Supply Change: +100.00%
+
+DAI Supply Metrics:
+  - Current Supply: 3,142,219,213.18
+  - Current Price: $1.0000
+  - 24h Supply Change: +100.00%
+
+EURC Supply Metrics:
+  - Current Supply: 173,047,475.20
+  - Current Price: $1.1413
+  - 24h Supply Change: +100.00%
+
+USDe Supply Metrics:
+  - Current Supply: 4,985,683,379.58
+  - Current Price: $1.0000
+  - 24h Supply Change: +100.00%
+
+=== Velocity Analysis ===
+FRAX Velocity Metrics:

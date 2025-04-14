@@ -1,0 +1,32 @@
+{
+    "start_time": "2025-04-05 18:30:24",
+    "end_time": "2025-04-12 23:33:30",
+    "FRAX": {
+        "avg_velocity": 0.00017861479557214823,
+        "max_velocity": 0.0022045704650356644,
+        "total_transactions": 503,
+        "total_volume": 2808636.534913858,
+        "avg_unique_wallets": 13.8125
+    },
+    "DAI": {
+        "avg_velocity": 0.022071517968820207,
+        "max_velocity": 0.3219267814403981,
+        "total_transactions": 8478,
+        "total_volume": 3324041452.78119,
+        "avg_unique_wallets": 138.0
+    },
+    "EURC": {
+        "avg_velocity": 0.001438300174290371,
+        "max_velocity": 0.011259281316524603,
+        "total_transactions": 226,
+        "total_volume": 3.893099471662999e-06,
+        "avg_unique_wallets": 10.458333333333334
+    },
+    "USDe": {
+        "avg_velocity": 0.0,
+        "max_velocity": 0.0,
+        "total_transactions": 0,
+        "total_volume": 0.0,
+        "avg_unique_wallets": 0.0
+    }
+}

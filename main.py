@@ -25,7 +25,10 @@ async def generate_consolidated_report():
     
     try:
         # Run velocity tracking
-        velocity_data = await velocity_tracker.track_velocity()
+        hourly_velocity_data = await velocity_tracker.track_velocity()
+        
+        # Get the most recent velocity data point (first hour)
+        velocity_data = hourly_velocity_data[0] if hourly_velocity_data else {}
         
         # Run supply monitoring - this is a continuous monitoring task
         # We'll just get the initial data point
@@ -54,7 +57,13 @@ async def generate_consolidated_report():
                     'frax_supply_change': latest_data['frax_supply_change'],
                     'dai_supply': latest_data['dai_supply'],
                     'dai_price': latest_data['dai_price'],
-                    'dai_supply_change': latest_data['dai_supply_change']
+                    'dai_supply_change': latest_data['dai_supply_change'],
+                    'eurc_supply': latest_data['eurc_supply'],
+                    'eurc_price': latest_data['eurc_price'],
+                    'eurc_supply_change': latest_data['eurc_supply_change'],
+                    'usde_supply': latest_data['usde_supply'],
+                    'usde_price': latest_data['usde_price'],
+                    'usde_supply_change': latest_data['usde_supply_change']
                 }
         
         # Generate consolidated report
@@ -78,29 +87,74 @@ async def generate_consolidated_report():
                 f.write(f"  - Current Supply: {supply_data['dai_supply']:,.2f}\n")
                 f.write(f"  - Current Price: ${supply_data['dai_price']:.4f}\n")
                 f.write(f"  - 24h Supply Change: {supply_data['dai_supply_change']:+.2f}%\n\n")
+
+                # EURC Supply Analysis
+                f.write("EURC Supply Metrics:\n")
+                f.write(f"  - Current Supply: {supply_data['eurc_supply']:,.2f}\n")
+                f.write(f"  - Current Price: ${supply_data['eurc_price']:.4f}\n")
+                f.write(f"  - 24h Supply Change: {supply_data['eurc_supply_change']:+.2f}%\n\n")
+
+                # USDe Supply Analysis
+                f.write("USDe Supply Metrics:\n")
+                f.write(f"  - Current Supply: {supply_data['usde_supply']:,.2f}\n")
+                f.write(f"  - Current Price: ${supply_data['usde_price']:.4f}\n")
+                f.write(f"  - 24h Supply Change: {supply_data['usde_supply_change']:+.2f}%\n\n")
             else:
                 f.write("Supply data not available yet\n\n")
             
             # Velocity Analysis Section - Split by Token
             f.write("=== Velocity Analysis ===\n")
             
-            # FRAX Velocity Metrics
-            f.write("FRAX Velocity Metrics:\n")
-            f.write(f"  - Velocity Ratio: {velocity_data['FRAX_velocity_ratio']:.4f}\n")
-            f.write(f"  - Transaction Count: {velocity_data['FRAX_transaction_count']}\n")
-            f.write(f"  - Unique Wallets: {velocity_data['FRAX_unique_wallets']}\n")
-            f.write(f"  - Volume: {velocity_data['FRAX_volume_formatted']}\n")
-            f.write(f"  - Token Supply: {velocity_data['FRAX_token_supply_formatted']}\n")
-            f.write(f"  - Duplicate Transactions: {velocity_data['FRAX_duplicate_txs']}\n\n")
-            
-            # DAI Velocity Metrics
-            f.write("DAI Velocity Metrics:\n")
-            f.write(f"  - Velocity Ratio: {velocity_data['DAI_velocity_ratio']:.4f}\n")
-            f.write(f"  - Transaction Count: {velocity_data['DAI_transaction_count']}\n")
-            f.write(f"  - Unique Wallets: {velocity_data['DAI_unique_wallets']}\n")
-            f.write(f"  - Volume: {velocity_data['DAI_volume_formatted']}\n")
-            f.write(f"  - Token Supply: {velocity_data['DAI_token_supply_formatted']}\n")
-            f.write(f"  - Duplicate Transactions: {velocity_data['DAI_duplicate_txs']}\n")
+            if velocity_data:
+                # FRAX Velocity Metrics
+                f.write("FRAX Velocity Metrics:\n")
+                if 'FRAX_velocity_ratio' in velocity_data:
+                    f.write(f"  - Velocity Ratio: {velocity_data.get('FRAX_velocity_ratio', 0):.4f}\n")
+                    f.write(f"  - Transaction Count: {velocity_data.get('FRAX_transaction_count', 0)}\n")
+                    f.write(f"  - Unique Wallets: {velocity_data.get('FRAX_unique_wallets', 0)}\n")
+                    f.write(f"  - Volume: {velocity_data.get('FRAX_volume_formatted', '0')}\n")
+                    f.write(f"  - Token Supply: {velocity_data.get('FRAX_token_supply_formatted', '0')}\n")
+                    f.write(f"  - Duplicate Transactions: {velocity_data.get('FRAX_duplicate_txs', 0)}\n\n")
+                else:
+                    f.write("  Data not available\n\n")
+                
+                # DAI Velocity Metrics
+                f.write("DAI Velocity Metrics:\n")
+                if 'DAI_velocity_ratio' in velocity_data:
+                    f.write(f"  - Velocity Ratio: {velocity_data.get('DAI_velocity_ratio', 0):.4f}\n")
+                    f.write(f"  - Transaction Count: {velocity_data.get('DAI_transaction_count', 0)}\n")
+                    f.write(f"  - Unique Wallets: {velocity_data.get('DAI_unique_wallets', 0)}\n")
+                    f.write(f"  - Volume: {velocity_data.get('DAI_volume_formatted', '0')}\n")
+                    f.write(f"  - Token Supply: {velocity_data.get('DAI_token_supply_formatted', '0')}\n")
+                    f.write(f"  - Duplicate Transactions: {velocity_data.get('DAI_duplicate_txs', 0)}\n\n")
+                else:
+                    f.write("  Data not available\n\n")
+
+                # EURC Velocity Metrics
+                f.write("EURC Velocity Metrics:\n")
+                if 'EURC_velocity_ratio' in velocity_data:
+                    f.write(f"  - Velocity Ratio: {velocity_data.get('EURC_velocity_ratio', 0):.4f}\n")
+                    f.write(f"  - Transaction Count: {velocity_data.get('EURC_transaction_count', 0)}\n")
+                    f.write(f"  - Unique Wallets: {velocity_data.get('EURC_unique_wallets', 0)}\n")
+                    f.write(f"  - Volume: {velocity_data.get('EURC_volume_formatted', '0')}\n")
+                    f.write(f"  - Token Supply: {velocity_data.get('EURC_token_supply_formatted', '0')}\n")
+                    f.write(f"  - Duplicate Transactions: {velocity_data.get('EURC_duplicate_txs', 0)}\n\n")
+                else:
+                    f.write("  Data not available\n\n")
+
+                # USDe Velocity Metrics
+                f.write("USDe Velocity Metrics:\n")
+                if 'USDe_velocity_ratio' in velocity_data:
+                    f.write(f"  - Velocity Ratio: {velocity_data.get('USDe_velocity_ratio', 0):.4f}\n")
+                    f.write(f"  - Transaction Count: {velocity_data.get('USDe_transaction_count', 0)}\n")
+                    f.write(f"  - Unique Wallets: {velocity_data.get('USDe_unique_wallets', 0)}\n")
+                    f.write(f"  - Volume: {velocity_data.get('USDe_volume_formatted', '0')}\n")
+                    f.write(f"  - Token Supply: {velocity_data.get('USDe_token_supply_formatted', '0')}\n")
+                    f.write(f"  - Duplicate Transactions: {velocity_data.get('USDe_duplicate_txs', 0)}\n")
+                else:
+                    f.write("  Data not available\n")
+            else:
+                f.write("Velocity data not available\n")
         
         print(f"Consolidated report generated successfully: {report_path}")
         return True

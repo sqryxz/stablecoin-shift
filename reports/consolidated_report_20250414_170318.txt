@@ -1,0 +1,56 @@
+=== Stablecoin Analysis Consolidated Report ===
+Generated at: 2025-04-14 17:04:56
+
+=== Supply Analysis ===
+FRAX Supply Metrics:
+  - Current Supply: 319,906,477.62
+  - Current Price: $0.9995
+  - 24h Supply Change: +100.00%
+
+DAI Supply Metrics:
+  - Current Supply: 3,142,219,213.18
+  - Current Price: $1.0000
+  - 24h Supply Change: +100.00%
+
+EURC Supply Metrics:
+  - Current Supply: 173,047,475.20
+  - Current Price: $1.1413
+  - 24h Supply Change: +100.00%
+
+USDe Supply Metrics:
+  - Current Supply: 4,985,683,379.58
+  - Current Price: $1.0000
+  - 24h Supply Change: +100.00%
+
+=== Velocity Analysis ===
+FRAX Velocity Metrics:
+  - Velocity Ratio: 0.0001
+  - Transaction Count: 14
+  - Unique Wallets: 17
+  - Volume: 35,145.69
+  - Token Supply: 319,906,477.62
+  - Duplicate Transactions: 11
+
+DAI Velocity Metrics:
+  - Velocity Ratio: 0.0029
+  - Transaction Count: 211
+  - Unique Wallets: 158
+  - Volume: 9,168,767.31
+  - Token Supply: 3,142,093,383.02
+  - Duplicate Transactions: 144
+
+EURC Velocity Metrics:
+  - Velocity Ratio: 0.0127
+  - Transaction Count: 40
+  - Unique Wallets: 34
+  - Volume: 0.00
+  - Token Supply: 0.00
+  - Duplicate Transactions: 21
+
+USDe Velocity Metrics:
+  - Velocity Ratio: 0.0009
+  - Transaction Count: 89
+  - Unique Wallets: 78
+  - Volume: 4,595,629.36
+  - Token Supply: 4,976,770,948.04
+  - Duplicate Transactions: 81

@@ -63,7 +63,19 @@ class StablecoinVelocityTracker:
             'FRAX': '0x853d955acef822db058eb8505911ed77f175b99e',
             'DAI': '0x6b175474e89094c44da98b954eedeac495271d0f',
             'EURC': '0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c',
-            'ESDe': '0x49Ec3e1335490d1c5C77A6aB77c1e3F6c19Fdf31'  # Ethena Labs ESDe
+            'USDe': '0x4c9EDD5852cd905f086C759E8383e09bff1E68B3'  # Ethena Labs USDe
+        }
+        
+        # Store metrics with USDe prefix
+        self.metrics = {
+            'USDe_transaction_count': 0,
+            'USDe_unique_wallets': 0,
+            'USDe_volume': 0,
+            'USDe_volume_formatted': "0.00",
+            'USDe_token_supply': 0,
+            'USDe_token_supply_formatted': "0.00",
+            'USDe_velocity_ratio': 0,
+            'USDe_duplicate_txs': 0
         }
         
         # Ensure directories exist
@@ -276,7 +288,7 @@ class StablecoinVelocityTracker:
             )
             
             # Add traces for each token
-            for token in ['FRAX', 'DAI', 'EURC', 'ESDe']:
+            for token in ['FRAX', 'DAI', 'EURC', 'USDe']:
                 # Transaction count
                 fig.add_trace(
                     go.Scatter(
@@ -361,12 +373,12 @@ class StablecoinVelocityTracker:
                     'total_volume': float(data['EURC_volume'].sum()),
                     'avg_unique_wallets': float(data['EURC_unique_wallets'].mean())
                 },
-                'ESDe': {
-                    'avg_velocity': float(data['ESDe_velocity_ratio'].mean()),
-                    'max_velocity': float(data['ESDe_velocity_ratio'].max()),
-                    'total_transactions': int(data['ESDe_transaction_count'].sum()),
-                    'total_volume': float(data['ESDe_volume'].sum()),
-                    'avg_unique_wallets': float(data['ESDe_unique_wallets'].mean())
+                'USDe': {
+                    'avg_velocity': float(data['USDe_velocity_ratio'].mean()),
+                    'max_velocity': float(data['USDe_velocity_ratio'].max()),
+                    'total_transactions': int(data['USDe_transaction_count'].sum()),
+                    'total_volume': float(data['USDe_volume'].sum()),
+                    'avg_unique_wallets': float(data['USDe_unique_wallets'].mean())
                 }
             }
             
@@ -446,6 +458,34 @@ class StablecoinVelocityTracker:
         except Exception as e:
             logger.error(f"Error in track_velocity: {str(e)}")
             raise
+
+    def calculate_velocity(self):
+        """Calculate velocity metrics for USDe token"""
+        try:
+            # Get total supply from contract using existing Web3 instance
+            contract = self.w3.eth.contract(
+                address=self.w3.to_checksum_address(self.tokens['USDe']),
+                abi=USDe_ABI
+            )
+            supply = contract.functions.totalSupply().call() / 1e18
+            self.metrics['USDe_token_supply'] = supply
+            self.metrics['USDe_token_supply_formatted'] = f"{supply:,.2f}"
+            
+            # Calculate velocity ratio (volume/supply)
+            if supply > 0:
+                velocity = self.metrics['USDe_volume'] / supply
+                self.metrics['USDe_velocity_ratio'] = velocity
+            
+            # Log metrics using logger instance
+            logger.info(f"USDe Velocity Metrics:")
+            logger.info(f"Transaction Count: {self.metrics['USDe_transaction_count']}")
+            logger.info(f"Unique Wallets: {self.metrics['USDe_unique_wallets']}")
+            logger.info(f"Volume: {self.metrics['USDe_volume_formatted']} USDe")
+            logger.info(f"Supply: {self.metrics['USDe_token_supply_formatted']} USDe")
+            logger.info(f"Velocity Ratio: {self.metrics['USDe_velocity_ratio']:.4f}")
+            
+        except Exception as e:
+            logger.error(f"Error calculating USDe velocity: {str(e)}")
 
 async def main():
     try:

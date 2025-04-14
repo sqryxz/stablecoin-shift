@@ -1,10 +1,10 @@
 # Stablecoin Supply Shift Monitor
 
-A Python-based tool for monitoring and analyzing supply changes in major stablecoins (FRAX, DAI, EURC, and ESDe). This tool generates periodic reports highlighting significant changes in stablecoin supply, helping track market movements and potential de-pegging events.
+A Python-based tool for monitoring and analyzing supply changes in major stablecoins (FRAX, DAI, EURC, and USDe). This tool generates periodic reports highlighting significant changes in stablecoin supply, helping track market movements and potential de-pegging events.
 
 ## Features
 
-- Monitors supply changes for FRAX, DAI, EURC, and ESDe stablecoins
+- Monitors supply changes for FRAX, DAI, EURC, and USDe stablecoins
 - Generates detailed reports every 2 hours
 - Tracks supply changes, current supply levels, and token prices
 - Saves historical reports with timestamps
@@ -72,9 +72,9 @@ The tool expects data in CSV format with the following columns:
 - eurc_supply: Total EURC supply
 - eurc_price: Current EURC price in USD
 - eurc_supply_change: Percentage change in EURC supply
-- esde_supply: Total ESDe supply
-- esde_price: Current ESDe price
-- esde_supply_change: Percentage change in ESDe supply
+- usde_supply: Total USDe supply
+- usde_price: Current USDe price
+- usde_supply_change: Percentage change in USDe supply
 
 ## Configuration
 
@@ -153,4 +153,16 @@ The tracker monitors several key metrics:
 
 - `data/velocity_data.csv`: Historical velocity metrics
 - `reports/velocity_report_YYYY-MM-DD.html`: Daily interactive charts
-- `reports/velocity_summary_YYYY-MM-DD.json`: Daily metrics summary 
+- `reports/velocity_summary_YYYY-MM-DD.json`: Daily metrics summary
+
+## Metrics Tracked
+
+The tool tracks the following metrics:
+
+### Supply Metrics
+- USDe total supply and changes
+- EURC total supply and changes
+
+### Velocity Metrics
+- USDe velocity ratio and transaction counts
+- EURC velocity ratio and transaction counts 

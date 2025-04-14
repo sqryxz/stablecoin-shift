@@ -9,20 +9,11 @@ def load_data(file_path='data/stablecoin_data.csv'):
     df['timestamp'] = pd.to_datetime(df['timestamp'])
     
     # Fill NaN values with 0 for supply changes
-    df['frax_supply_change'] = df['frax_supply_change'].fillna(0)
-    df['dai_supply_change'] = df['dai_supply_change'].fillna(0)
-    df['eurc_supply_change'] = df['eurc_supply_change'].fillna(0)
-    df['esde_supply_change'] = df['esde_supply_change'].fillna(0)
-    
-    # Forward fill prices and supply values
-    df['frax_price'] = df['frax_price'].fillna(method='ffill')
-    df['dai_price'] = df['dai_price'].fillna(method='ffill')
-    df['eurc_price'] = df['eurc_price'].fillna(method='ffill')
-    df['esde_price'] = df['esde_price'].fillna(method='ffill')
-    df['frax_supply'] = df['frax_supply'].fillna(method='ffill')
-    df['dai_supply'] = df['dai_supply'].fillna(method='ffill')
-    df['eurc_supply'] = df['eurc_supply'].fillna(method='ffill')
-    df['esde_supply'] = df['esde_supply'].fillna(method='ffill')
+    for token in ['frax', 'dai', 'eurc', 'usde']:
+        df[f'{token}_supply_change'] = df[f'{token}_supply_change'].fillna(0)
+        # Use ffill() instead of deprecated fillna(method='ffill')
+        df[f'{token}_price'] = df[f'{token}_price'].fillna(1.0).ffill()  # Default price to 1.0
+        df[f'{token}_supply'] = df[f'{token}_supply'].fillna(0).ffill()  # Default supply to 0
     
     return df
 
@@ -33,72 +24,78 @@ def analyze_supply_changes(df, window_hours=2):
     # Group data into time windows
     df['time_window'] = df['timestamp'].dt.floor(f'{window_hours}H')
     
+    # Different thresholds for different tokens
+    thresholds = {
+        'frax': 0.0001,
+        'dai': 0.0001,
+        'eurc': 0.00001,  # Much more sensitive threshold for EURC
+        'usde': 0.00001   # Much more sensitive threshold for USDe
+    }
+    
+    # Get the latest data point for each token
+    latest_data = df.iloc[-1]
+    for token in ['frax', 'dai', 'eurc', 'usde']:
+        changes.append({
+            'timestamp': latest_data['timestamp'],
+            'token': token.upper(),
+            'supply_change_pct': latest_data[f'{token}_supply_change'],
+            'price': latest_data[f'{token}_price'],
+            'supply': latest_data[f'{token}_supply']
+        })
+    
+    # Also include historical changes that exceed thresholds
     for window_start in df['time_window'].unique():
         window_data = df[df['time_window'] == window_start]
         
         # Check for any non-zero supply changes
-        frax_changes = window_data[np.abs(window_data['frax_supply_change']) > 0.0001]
-        dai_changes = window_data[np.abs(window_data['dai_supply_change']) > 0.0001]
-        eurc_changes = window_data[np.abs(window_data['eurc_supply_change']) > 0.0001]
-        esde_changes = window_data[np.abs(window_data['esde_supply_change']) > 0.0001]
-        
-        if not frax_changes.empty:
-            for _, row in frax_changes.iterrows():
-                changes.append({
-                    'timestamp': row['timestamp'],
-                    'token': 'FRAX',
-                    'supply_change_pct': row['frax_supply_change'],
-                    'price': row['frax_price'],
-                    'supply': row['frax_supply']
-                })
-                
-        if not dai_changes.empty:
-            for _, row in dai_changes.iterrows():
-                changes.append({
-                    'timestamp': row['timestamp'],
-                    'token': 'DAI',
-                    'supply_change_pct': row['dai_supply_change'],
-                    'price': row['dai_price'],
-                    'supply': row['dai_supply']
-                })
-
-        if not eurc_changes.empty:
-            for _, row in eurc_changes.iterrows():
-                changes.append({
-                    'timestamp': row['timestamp'],
-                    'token': 'EURC',
-                    'supply_change_pct': row['eurc_supply_change'],
-                    'price': row['eurc_price'],
-                    'supply': row['eurc_supply']
-                })
-
-        if not esde_changes.empty:
-            for _, row in esde_changes.iterrows():
-                changes.append({
-                    'timestamp': row['timestamp'],
-                    'token': 'ESDe',
-                    'supply_change_pct': row['esde_supply_change'],
-                    'price': row['esde_price'],
-                    'supply': row['esde_supply']
-                })
+        for token in ['frax', 'dai', 'eurc', 'usde']:
+            token_changes = window_data[
+                np.abs(window_data[f'{token}_supply_change']) > thresholds[token]
+            ]
+            
+            if not token_changes.empty:
+                for _, row in token_changes.iterrows():
+                    # Only add if it's not the latest data point
+                    if row['timestamp'] != latest_data['timestamp']:
+                        changes.append({
+                            'timestamp': row['timestamp'],
+                            'token': token.upper(),
+                            'supply_change_pct': row[f'{token}_supply_change'],
+                            'price': row[f'{token}_price'],
+                            'supply': row[f'{token}_supply']
+                        })
     
+    # Sort changes by timestamp
+    changes.sort(key=lambda x: x['timestamp'])
     return changes
 
 def generate_report(changes):
     """Generate a formatted report from the changes."""
-    if not changes:
-        return "No significant supply changes detected in the analyzed period."
-    
     report = "Stablecoin Supply Change Report\n"
     report += "=" * 50 + "\n\n"
     
+    # Group changes by token for better organization
+    token_changes = {}
     for change in changes:
-        report += f"Time: {change['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}\n"
-        report += f"Token: {change['token']}\n"
-        report += f"Supply Change: {change['supply_change_pct']:.4f}%\n"
-        report += f"Current Supply: {change['supply']:,.2f}\n"
-        report += f"Token Price: ${change['price']:.4f}\n"
+        token = change['token']
+        if token not in token_changes:
+            token_changes[token] = []
+        token_changes[token].append(change)
+    
+    # Report for each token
+    for token in ['FRAX', 'DAI', 'EURC', 'USDe']:
+        report += f"\n{token} Changes:\n"
         report += "-" * 30 + "\n"
+        if token in token_changes:
+            for change in token_changes[token]:
+                report += f"Time: {change['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}\n"
+                report += f"Supply Change: {change['supply_change_pct']:.4f}%\n"
+                report += f"Current Supply: {change['supply']:,.2f}\n"
+                report += f"Token Price: ${change['price']:.4f}\n"
+                report += "-" * 30 + "\n"
+        else:
+            report += "No data available\n"
+            report += "-" * 30 + "\n"
     
     return report
 
@@ -115,7 +112,7 @@ def main():
         report = generate_report(changes)
         print(report)
         
-        # Optionally save report to file
+        # Save report to file
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         report_path = f"reports/supply_report_{timestamp}.txt"
         

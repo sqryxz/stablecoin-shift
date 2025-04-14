@@ -8,6 +8,11 @@ import os
 from pathlib import Path
 import time
 from typing import Optional, Dict, Any
+from web3 import Web3
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(
@@ -15,6 +20,28 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# ERC20 ABI for totalSupply
+ERC20_ABI = [
+    {
+        "constant": True,
+        "inputs": [],
+        "name": "totalSupply",
+        "outputs": [{"name": "", "type": "uint256"}],
+        "payable": False,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": True,
+        "inputs": [],
+        "name": "decimals",
+        "outputs": [{"name": "", "type": "uint8"}],
+        "payable": False,
+        "stateMutability": "view",
+        "type": "function"
+    }
+]
 
 class StablecoinMonitor:
     def __init__(self):
@@ -24,14 +51,47 @@ class StablecoinMonitor:
             'FRAX': None,
             'DAI': None,
             'EURC': None,
-            'ESDe': None
+            'USDe': None
         }
+        
+        # Token IDs mapping
+        self.token_ids = {
+            'FRAX': 'frax',
+            'DAI': 'dai',
+            'EURC': 'euro-coin',
+            'USDe': 'usde'
+        }
+        
+        # Token contract addresses
+        self.token_contracts = {
+            'USDe': '0x4c9EDD5852cd905f086C759E8383e09bff1E68B3'  # USDe contract on Ethereum mainnet
+        }
+        
+        # Initialize Web3
+        self.eth_node_url = os.getenv('ETH_NODE_URL')
+        if self.eth_node_url:
+            self.w3 = Web3(Web3.HTTPProvider(self.eth_node_url))
+            if self.w3.is_connected():
+                logger.info("Connected to Ethereum node")
+                # Initialize contract instances
+                self.usde_contract = self.w3.eth.contract(
+                    address=Web3.to_checksum_address(self.token_contracts['USDe']),
+                    abi=ERC20_ABI
+                )
+                logger.info("Initialized USDe contract")
+            else:
+                logger.warning("Failed to connect to Ethereum node")
+                self.usde_contract = None
+        else:
+            logger.warning("ETH_NODE_URL not set, blockchain fallback won't be available")
+            self.w3 = None
+            self.usde_contract = None
         
         # Rate limiting parameters
         self.last_request_time = 0
         self.min_request_interval = 6.0  # Minimum 6 seconds between requests
-        self.max_retries = 3
-        self.retry_delay = 10  # Seconds to wait between retries
+        self.max_retries = 5  # Increased retries
+        self.retry_delay = 15  # Increased delay between retries
         
         # Create data directory if it doesn't exist
         self.data_dir = Path('data')
@@ -109,32 +169,132 @@ class StablecoinMonitor:
                     continue
         return None
 
+    async def get_onchain_supply(self, token_address: str) -> Optional[Dict[str, float]]:
+        """Get token supply directly from the blockchain."""
+        if not self.w3 or not self.w3.is_connected():
+            logger.error("Web3 not initialized or not connected")
+            return None
+            
+        try:
+            # Use pre-initialized contract for USDe
+            if token_address == self.token_contracts['USDe'] and self.usde_contract:
+                contract = self.usde_contract
+            else:
+                # Create contract instance with checksummed address
+                checksummed_address = Web3.to_checksum_address(token_address)
+                contract = self.w3.eth.contract(
+                    address=checksummed_address,
+                    abi=ERC20_ABI
+                )
+            
+            # Create async tasks for both calls
+            loop = asyncio.get_event_loop()
+            
+            # Make direct function calls
+            total_supply_task = loop.run_in_executor(
+                None,
+                contract.functions.totalSupply().call
+            )
+            decimals_task = loop.run_in_executor(
+                None,
+                contract.functions.decimals().call
+            )
+            
+            # Wait for both calls to complete
+            total_supply, decimals = await asyncio.gather(total_supply_task, decimals_task)
+            
+            # Log raw values for debugging
+            logger.info(f"Raw total supply: {total_supply}")
+            logger.info(f"Raw decimals: {decimals}")
+            
+            # Ensure we have valid decimals
+            if decimals == 0:
+                decimals = 18  # Default to 18 decimals for ERC20 tokens
+                logger.warning("Contract returned 0 for decimals, using default of 18")
+            
+            # Convert to proper decimal places
+            supply = total_supply / (10 ** decimals)
+            
+            # Skip if supply is 0
+            if total_supply == 0:
+                logger.warning("Contract returned 0 for total supply")
+                return {
+                    'supply': 0,
+                    'price': 1.0
+                }
+            
+            logger.info(f"Successfully fetched on-chain supply for {token_address}")
+            logger.info(f"Total Supply: {supply:,.2f}")
+            logger.info(f"Decimals: {decimals}")
+            
+            return {
+                'supply': supply,
+                'price': 1.0  # Using 1.0 as default price for stablecoin
+            }
+        except Exception as e:
+            logger.error(f"Error getting on-chain supply for {token_address}")
+            logger.error(f"Exception details: {str(e)}")
+            logger.error(f"Exception type: {type(e).__name__}")
+            return None
+
     async def get_stablecoin_data(self, session, coin_id):
-        """Get stablecoin data with simple API endpoint."""
+        """Get stablecoin data with enhanced error handling and retries."""
+        # Special handling for USDe
+        if coin_id == 'usde' and self.w3:
+            logger.info("Using blockchain fallback for USDe data")
+            onchain_data = await self.get_onchain_supply(self.token_contracts['USDe'])
+            if onchain_data:
+                logger.info(f"Successfully got USDe data from blockchain")
+                return onchain_data
+            else:
+                logger.warning("Failed to get USDe data from blockchain, will try again next cycle")
+                return {
+                    'supply': 0,
+                    'price': 1.0
+                }
+        
         url = f"{self.coingecko_api_url}/simple/price?ids={coin_id}&vs_currencies=usd&include_market_cap=true&include_24hr_vol=false&include_24hr_change=false&include_last_updated_at=true&precision=4"
         data = await self.fetch_data(session, url)
         
-        if data and coin_id in data:
-            try:
-                coin_data = data[coin_id]
-                # For supply, we'll make a separate request
+        if not data or coin_id not in data:
+            logger.warning(f"No price data available for {coin_id}, trying alternative endpoints...")
+            # For USDe, try blockchain fallback if API fails
+            if coin_id == 'usde' and self.w3:
+                logger.info("Falling back to blockchain data for USDe")
+                return await self.get_onchain_supply(self.token_contracts['USDe'])
+            return None
+        
+        try:
+            coin_data = data[coin_id]
+            # For supply, we'll make a separate request with multiple retries
+            for retry in range(self.max_retries):
                 supply_url = f"{self.coingecko_api_url}/coins/{coin_id}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false"
                 supply_data = await self.fetch_data(session, supply_url)
                 
                 if supply_data and 'market_data' in supply_data:
                     supply = float(supply_data['market_data'].get('total_supply', 0))
-                    current_price = float(coin_data.get('usd', 1))
-                    return {
-                        'supply': supply,
-                        'price': current_price
-                    }
-            except (KeyError, ValueError) as e:
-                logger.error(f"Error parsing {coin_id} data: {str(e)}")
+                    if supply > 0:  # Validate supply data
+                        current_price = float(coin_data.get('usd', 1))
+                        return {
+                            'supply': supply,
+                            'price': current_price
+                        }
+                logger.warning(f"Retry {retry + 1}/{self.max_retries} for {coin_id} supply data")
+                await asyncio.sleep(self.retry_delay)
+            
+            logger.error(f"Failed to get valid supply data for {coin_id} after {self.max_retries} retries")
+        except (KeyError, ValueError) as e:
+            logger.error(f"Error parsing {coin_id} data: {str(e)}")
         return None
 
     def calculate_supply_change(self, current, previous):
-        if previous is None:
-            return 0
+        """Calculate percentage change in supply with zero handling."""
+        if previous is None or previous == 0:
+            if current is None or current == 0:
+                return 0.0  # No change if both values are 0/None
+            return 100.0  # 100% increase if going from 0 to some value
+        if current is None or current == 0:
+            return -100.0  # 100% decrease if going from some value to 0
         return ((current - previous) / previous) * 100
 
     async def monitor_supplies(self):
@@ -155,9 +315,9 @@ class StablecoinMonitor:
                     'eurc_supply': None,
                     'eurc_price': None,
                     'eurc_supply_change': None,
-                    'esde_supply': None,
-                    'esde_price': None,
-                    'esde_supply_change': None
+                    'usde_supply': None,
+                    'usde_price': None,
+                    'usde_supply_change': None
                 }
 
                 # Fetch data with delay between requests
@@ -222,23 +382,23 @@ class StablecoinMonitor:
 
                 await asyncio.sleep(2)  # Small delay between coins
 
-                # Add ESDe monitoring
-                esde_data = await self.get_stablecoin_data(session, 'ethena-esde')
-                if esde_data:
-                    current_esde_supply = esde_data['supply']
-                    esde_change = self.calculate_supply_change(
-                        current_esde_supply,
-                        self.previous_supplies['ESDe']
+                # Add USDe monitoring
+                usde_data = await self.get_stablecoin_data(session, 'usde')
+                if usde_data:
+                    current_usde_supply = usde_data['supply']
+                    usde_change = self.calculate_supply_change(
+                        current_usde_supply,
+                        self.previous_supplies['USDe']
                     )
-                    logger.info(f"ESDe Supply: {current_esde_supply:,.2f}")
-                    logger.info(f"ESDe Price: ${esde_data['price']:.4f}")
-                    logger.info(f"ESDe Supply Change: {esde_change:+.2f}%")
-                    self.previous_supplies['ESDe'] = current_esde_supply
+                    logger.info(f"USDe Supply: {current_usde_supply:,.2f}")
+                    logger.info(f"USDe Price: ${usde_data['price']:.4f}")
+                    logger.info(f"USDe Supply Change: {usde_change:+.2f}%")
+                    self.previous_supplies['USDe'] = current_usde_supply
                     
                     data_entry.update({
-                        'esde_supply': current_esde_supply,
-                        'esde_price': esde_data['price'],
-                        'esde_supply_change': esde_change
+                        'usde_supply': current_usde_supply,
+                        'usde_price': usde_data['price'],
+                        'usde_supply_change': usde_change
                     })
 
                 # Save data to files
